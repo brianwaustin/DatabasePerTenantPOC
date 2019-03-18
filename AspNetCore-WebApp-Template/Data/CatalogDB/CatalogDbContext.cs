@@ -119,42 +119,42 @@ namespace DatabasePerTenantPOC.Data.CatalogDB
                     .IsRequired();
             });
 
-            modelBuilder.Entity<Servers>().HasData(new Servers {
-                ServerName ="localdb",
-                Location = "",
-                State = "",
-                RecoveryState = "",
-                LastUpdated = DateTime.Now});
+            //modelBuilder.Entity<Servers>().HasData(new Servers {
+            //    ServerName ="localdb",
+            //    Location = "",
+            //    State = "",
+            //    RecoveryState = "",
+            //    LastUpdated = DateTime.Now});
 
-            modelBuilder.Entity<ElasticPools>().HasData(new ElasticPools
-            {
-                ServerName = "localdb",
-                ElasticPoolName = "local",
-                Edition = "",
-                Dtu = 0,
-                DatabaseDtuMax = 0,
-                DatabaseDtuMin = 0,
-                StorageMB = 0,
-                State = "",
-                RecoveryState = "",
-                LastUpdated = DateTime.Now
-            });
+            //modelBuilder.Entity<ElasticPools>().HasData(new ElasticPools
+            //{
+            //    ServerName = "localdb",
+            //    ElasticPoolName = "local",
+            //    Edition = "",
+            //    Dtu = 0,
+            //    DatabaseDtuMax = 0,
+            //    DatabaseDtuMin = 0,
+            //    StorageMB = 0,
+            //    State = "",
+            //    RecoveryState = "",
+            //    LastUpdated = DateTime.Now
+            //});
 
-            modelBuilder.Entity<Databases>().HasData(new Databases {
-                ServerName ="localdb",
-                DatabaseName ="MSSQLLocalDb",
-                ServiceObjective = "",
-                ElasticPoolName = "local",
-                State = "",
-                RecoveryState = "",
-                LastUpdated = DateTime.Now});                      
+            //modelBuilder.Entity<Databases>().HasData(new Databases {
+            //    ServerName ="localdb",
+            //    DatabaseName ="MSSQLLocalDb",
+            //    ServiceObjective = "",
+            //    ElasticPoolName = "local",
+            //    State = "",
+            //    RecoveryState = "",
+            //    LastUpdated = DateTime.Now});                      
 
-            modelBuilder.Entity<Tenants>().HasData(new Tenants {
-                TenantId = new byte[] { 1 },
-                TenantName ="localTenant",
-                ServicePlan = "",
-                RecoveryState = "",
-                LastUpdated = DateTime.Now});
+            //modelBuilder.Entity<Tenants>().HasData(new Tenants {
+            //    TenantId = new byte[] { 1 },
+            //    TenantName ="localTenant",
+            //    ServicePlan = "",
+            //    RecoveryState = "",
+            //    LastUpdated = DateTime.Now});
 
         }
     }

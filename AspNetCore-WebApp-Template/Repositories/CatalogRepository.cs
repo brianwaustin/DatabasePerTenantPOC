@@ -59,8 +59,8 @@ namespace DatabasePerTenantPOC.Repositories
 
         public bool Add(Tenants tenant)
         {
-            var wingtipUser = _configuration["User"];
-            var tenantServerName = "tenants1-dpt-" + wingtipUser;
+            var applicationName = _configuration["ApplicationName"];
+            var tenantServerName = "tenants1-dpt-" + applicationName;
             var normalizedTenantName = tenant.TenantName.Replace(" ", string.Empty).ToLower();
             var location = _configuration["APP_REGION"];
             var defaultTenantValues = _configuration.GetSection("DefaultEnvironment");

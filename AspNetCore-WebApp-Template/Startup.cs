@@ -16,6 +16,7 @@ using DnsClient;
 using DatabasePerTenantPOC.Repositories;
 using System;
 using Microsoft.Azure.SqlDatabase.ElasticScale.ShardManagement;
+using System.Data.SqlClient;
 
 namespace DatabasePerTenantPOC
 {
@@ -73,15 +74,23 @@ namespace DatabasePerTenantPOC
                 });
 
             //register catalog DB
-            //services.AddDbContext<CatalogDbContext>(options => options.UseSqlServer(GetCatalogConnectionString(CatalogConfig, DatabaseConfig)));
-            services.AddDbContext<CatalogDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<CatalogDbContext>(options => options.UseSqlServer(GetCatalogConnectionString(CatalogConfig, DatabaseConfig)));
+            //services.AddDbContext<CatalogDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             //Add Application services
             services.AddTransient<ICatalogRepository, CatalogRepository>();
-            //services.AddTransient<ITenantRepository, TenantRepository>();
-            //services.AddSingleton<ITenantRepository>(p => new TenantRepository(GetBasicSqlConnectionString()));
+            services.AddTransient<ITenantRepository, TenantRepository>();
+            services.AddSingleton<ITenantRepository>(p => new TenantRepository(GetBasicSqlConnectionString()));
             services.AddSingleton<IConfiguration>(Configuration);
             services.AddSingleton<ILookupClient>(p => new LookupClient());
+
+            //create instance of utilities class
+            services.AddTransient<IUtilities, Utilities.Utilities>();
+            var provider = services.BuildServiceProvider();
+            _utilities = provider.GetService<IUtilities>();
+            _catalogRepository = provider.GetService<ICatalogRepository>();
+            _tenantRepository = provider.GetService<ITenantRepository>();
+            _client = provider.GetService<ILookupClient>();
 
             // Register no-op EmailSender used by account confirmation and password reset during development
             // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=532713
@@ -118,6 +127,10 @@ namespace DatabasePerTenantPOC
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            //shard management
+            InitialiseShardMapManager();
+            _utilities.RegisterTenantShard(TenantServerConfig, DatabaseConfig, CatalogConfig, TenantServerConfig.ResetEventDates);
         }
 
         /// <summary>
@@ -129,7 +142,9 @@ namespace DatabasePerTenantPOC
         private string GetCatalogConnectionString(CatalogConfig catalogConfig, DatabaseConfig databaseConfig)
         {
             return
-                $"Server=tcp:{catalogConfig.CatalogServer},1433;Database={catalogConfig.CatalogDatabase};User ID={databaseConfig.DatabaseUser};Password={databaseConfig.DatabasePassword};Trusted_Connection=False;Encrypt=True;";
+                $"Server=tcp:{catalogConfig.CatalogServer},{databaseConfig.DatabaseServerPort};Database={catalogConfig.CatalogDatabase};User ID={databaseConfig.DatabaseUser};Password={databaseConfig.DatabasePassword};Trusted_Connection=True;Encrypt=False;";
+                //$"Server={catalogConfig.CatalogServer};Database={catalogConfig.CatalogDatabase};Trusted_Connection=True;Encrypt=False;";
+
         }
 
         /// <summary>
@@ -143,21 +158,20 @@ namespace DatabasePerTenantPOC
                 DatabaseUser = Configuration["DatabaseUser"],
                 DatabaseServerPort = Convert.ToInt32(Configuration["DatabaseServerPort"]),
                 SqlProtocol = SqlProtocol.Tcp,
-                ConnectionTimeOut = Convert.ToInt32(Configuration["ConnectionTimeOut"]),
-                LearnHowFooterUrl = Configuration["LearnHowFooterUrl"]
+                ConnectionTimeOut = Convert.ToInt32(Configuration["ConnectionTimeOut"])
             };
 
             CatalogConfig = new CatalogConfig
             {
                 ServicePlan = Configuration["ServicePlan"],
                 CatalogDatabase = Configuration["CatalogDatabase"],
-                CatalogServer = Configuration["CatalogServer"] + ".database.windows.net",
+                CatalogServer = Configuration["CatalogServer"],
                 CatalogLocation = Configuration["APP_REGION"]
             };
 
             TenantServerConfig = new TenantServerConfig
             {
-                TenantServer = Configuration["TenantServer"] + ".database.windows.net"
+                TenantServer = Configuration["TenantServer"]
             };
 
             bool isResetEventDatesEnabled = false;
@@ -165,6 +179,41 @@ namespace DatabasePerTenantPOC
             {
                 TenantServerConfig.ResetEventDates = isResetEventDatesEnabled;
             }
+        }
+
+        /// <summary>
+        /// Initialises the shard map manager and shard map 
+        /// <para>Also does all tasks related to sharding</para>
+        /// </summary>
+        private void InitialiseShardMapManager()
+        {
+            var basicConnectionString = GetBasicSqlConnectionString();
+            SqlConnectionStringBuilder connectionString = new SqlConnectionStringBuilder(basicConnectionString)
+            {
+                DataSource = DatabaseConfig.SqlProtocol + ":" + CatalogConfig.CatalogServer + "," + DatabaseConfig.DatabaseServerPort,
+                //DataSource = CatalogConfig.CatalogServer,                
+                InitialCatalog = CatalogConfig.CatalogDatabase
+            };
+
+            var sharding = new Sharding(CatalogConfig.CatalogDatabase, connectionString.ConnectionString, _catalogRepository, _tenantRepository, _utilities);
+        }
+
+        /// <summary>
+        /// Gets the basic SQL connection string.
+        /// </summary>
+        /// <returns></returns>
+        private string GetBasicSqlConnectionString()
+        {
+            var connStrBldr = new SqlConnectionStringBuilder
+            {
+                UserID = DatabaseConfig.DatabaseUser,
+                Password = DatabaseConfig.DatabasePassword,
+                ApplicationName = "EntityFramework",
+                ConnectTimeout = DatabaseConfig.ConnectionTimeOut,
+                LoadBalanceTimeout = 15
+            };
+
+            return connStrBldr.ConnectionString;
         }
     }
 }

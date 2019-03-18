@@ -15,7 +15,6 @@ namespace DatabasePerTenantPOC.Utilities
         public string DatabasePassword { get; set; }
         public int DatabaseServerPort { get; set; }
         public int ConnectionTimeOut { get; set; }
-        public string LearnHowFooterUrl { get; set; }
         public SqlProtocol SqlProtocol { get; set; }
     }
 
