@@ -1,0 +1,28 @@
+﻿@page "{id:int}"
+@model DatabasePerTenantPOC.Pages.EditModel
+@{
+    ViewData["Title"] = "Edit";
+    //Layout = "~/Pages/_ViewStart.cshtml";
+}
+
+<h2>Edit - @Model.Customer.Id</h2>
+
+<form method="POST">
+    <div asp-validation-summary="All"></div>
+    <input asp-for="Customer.Id" type="hidden"/>
+    <div>
+        <label asp-for="Customer.Name"></label>
+        <div>
+            <input asp-for="Customer.Name"/>
+            <span asp-validation-for="Customer.Name"></span>
+        </div>
+    </div>
+    <div>
+        <button type="submit">Save</button>    
+    </div>
+</form>
+
+
+@section Scripts{
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

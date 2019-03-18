@@ -1,0 +1,20 @@
+﻿@page
+@model DatabasePerTenantPOC.Pages.CreateModel
+@{
+    ViewData["Title"] = "Create";
+    //Layout = "~/Pages/_ViewStart.cshtml";
+}
+
+<h2>Create</h2>
+
+<p>Enter your name:</p>
+<form method="POST">
+    <div asp-validation-summary="All"></div>
+    <div>Name: <input asp-for="Customer.Name"/></div>
+    @*<span asp-validation-for="Customer.Name"/>*@
+    <input type="submit"/>
+</form>
+
+@section Scripts{ 
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
