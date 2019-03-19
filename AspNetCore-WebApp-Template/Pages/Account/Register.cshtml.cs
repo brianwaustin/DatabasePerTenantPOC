@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using DatabasePerTenantPOC.Data;
 using DatabasePerTenantPOC.Services;
+using DatabasePerTenantPOC.Interfaces;
 
 namespace DatabasePerTenantPOC.Pages.Account
 {
@@ -18,17 +19,20 @@ namespace DatabasePerTenantPOC.Pages.Account
         private readonly UserManager<AppUser> _userManager;
         private readonly ILogger<LoginModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly IUtilities _utilities;
 
         public RegisterModel(
             UserManager<AppUser> userManager,
             SignInManager<AppUser> signInManager,
             ILogger<LoginModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            IUtilities utilities)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _utilities = utilities;
         }
 
         [BindProperty]
@@ -65,7 +69,7 @@ namespace DatabasePerTenantPOC.Pages.Account
             ReturnUrl = returnUrl;
             if (ModelState.IsValid)
             {
-                var user = new AppUser { UserName = Input.Email, Email = Input.Email };
+                var user = new AppUser { UserName = Input.Email, Email = Input.Email, TenantId = _utilities.GetTenantKey("TenantDatabase2") };
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {

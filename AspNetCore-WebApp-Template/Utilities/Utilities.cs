@@ -38,27 +38,24 @@ namespace DatabasePerTenantPOC.Utilities
             };
 
             foreach (var tenant in tenants)
-            {
-                if (tenant != "CatalogDb")
+            {                
+                var tenantId = GetTenantKey(tenant);
+                var result = await Sharding.RegisterNewShard(tenant, tenantId, tenantServerConfig.TenantServer, databaseConfig.DatabaseServerPort, catalogConfig.ServicePlan);
+                if (result)
                 {
-                    var tenantId = GetTenantKey(tenant);
-                    var result = await Sharding.RegisterNewShard(tenant, tenantId, tenantServerConfig.TenantServer, databaseConfig.DatabaseServerPort, catalogConfig.ServicePlan);
-                    if (result)
+                    // resets all tenants' event dates
+                    if (resetEventDate)
                     {
-                        // resets all tenants' event dates
-                        if (resetEventDate)
-                        {
 
-                            #region EF core
-                            ////https://github.com/aspnet/EntityFramework/issues/7032
-                            //using (var context = new TenantDbContext(Sharding.ShardMap, tenantId, connectionString.ConnectionString))
-                            //{
-                            //    //context.Database.ExecuteSqlCommand("sp_ResetEventDates");
-                            //}
-                            #endregion
-                        }
+                        #region EF core
+                        ////https://github.com/aspnet/EntityFramework/issues/7032
+                        //using (var context = new TenantDbContext(Sharding.ShardMap, tenantId, connectionString.ConnectionString))
+                        //{
+                        //    //context.Database.ExecuteSqlCommand("sp_ResetEventDates");
+                        //}
+                        #endregion
                     }
-                }
+                }                
             }
         }
 
@@ -122,15 +119,13 @@ namespace DatabasePerTenantPOC.Utilities
         {
             List<string> list = new List<string>();
 
-            //string conString = $"Server={databaseConfig.SqlProtocol}:{tenantServerConfig.TenantServer},{databaseConfig.DatabaseServerPort};Database={""};User ID={databaseConfig.DatabaseUser};Password={databaseConfig.DatabasePassword};Trusted_Connection=False;Encrypt=True;Connection Timeout={databaseConfig.ConnectionTimeOut};";
             string conString = $"Server={databaseConfig.SqlProtocol}:{tenantServerConfig.TenantServer},{databaseConfig.DatabaseServerPort};Database={""};User ID={databaseConfig.DatabaseUser};Password={databaseConfig.DatabasePassword};Trusted_Connection=True;Encrypt=False;Connection Timeout={databaseConfig.ConnectionTimeOut};";
-            //string conString = $"Server={tenantServerConfig.TenantServer};Database={""};Trusted_Connection=True;Encrypt=False;Connection Timeout={databaseConfig.ConnectionTimeOut};";
-
+            
             using (SqlConnection con = new SqlConnection(conString))
             {
                 con.Open();
 
-                using (SqlCommand cmd = new SqlCommand("SELECT name from sys.databases WHERE name NOT IN ('master')", con))
+                using (SqlCommand cmd = new SqlCommand("SELECT name, * from sys.databases WHERE name NOT IN ('master', 'tempdb', 'model', 'msdb', 'CatalogDb') AND state_desc NOT IN ('OFFLINE')", con))
                 {
                     using (IDataReader dr = cmd.ExecuteReader())
                     {
@@ -149,7 +144,7 @@ namespace DatabasePerTenantPOC.Utilities
         /// </summary>
         /// <param name="tenantName">Name of the tenant.</param>
         /// <returns></returns>
-        private int GetTenantKey(string tenantName)
+        public int GetTenantKey(string tenantName)
         {
             var normalizedTenantName = tenantName.Replace(" ", string.Empty).ToLower();
 

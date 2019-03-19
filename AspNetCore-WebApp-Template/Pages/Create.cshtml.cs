@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DatabasePerTenantPOC.Data;
 using DatabasePerTenantPOC.Data.CustomerDB;
 using DatabasePerTenantPOC.Data.TenantDB;
 using DatabasePerTenantPOC.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
@@ -15,14 +17,16 @@ namespace DatabasePerTenantPOC.Pages
     {
         private readonly AppDbContext _db;
         private readonly ICustomerRepository _customerRepository;
+        private readonly UserManager<AppUser> _userManager;
 
         private ILogger<CreateModel> _log;
 
-        public CreateModel(AppDbContext db, ICustomerRepository customerRepository, ILogger<CreateModel> log)
+        public CreateModel(AppDbContext db, ICustomerRepository customerRepository, UserManager<AppUser> userManager, ILogger<CreateModel> log)
         {
             _db = db;
             _customerRepository = customerRepository;
             _log = log;
+            _userManager = userManager;
         }
 
         [TempData]
@@ -38,7 +42,7 @@ namespace DatabasePerTenantPOC.Pages
                 return Page();
             }
 
-            await _customerRepository.AddCustomer(Customer, -1526297073);
+            await _customerRepository.AddCustomer(Customer, _userManager.FindByNameAsync(User.Identity.Name).Result.TenantId);
             var msg = $"Customer {Customer.Name} added!";
             Message = msg;
             _log.LogCritical(msg);

@@ -4,14 +4,16 @@ using DatabasePerTenantPOC;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DatabasePerTenantPOC.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190319174717_tenant shard")]
+    partial class tenantshard
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,7 +54,7 @@ namespace DatabasePerTenantPOC.Migrations
 
                     b.Property<string>("SecurityStamp");
 
-                    b.Property<int>("TenantId");
+                    b.Property<int>("TenantShardKey");
 
                     b.Property<bool>("TwoFactorEnabled");
 

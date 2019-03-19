@@ -15,5 +15,7 @@ namespace DatabasePerTenantPOC.Interfaces
         string GetTenantStatus(int TenantId);
 
         void ResolveMappingDifferences(int TenantId, bool UseGlobalShardMap = false);
+
+        int GetTenantKey(string tenantName);
     }
 }

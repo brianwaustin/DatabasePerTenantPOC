@@ -59,7 +59,6 @@ namespace DatabasePerTenantPOC.Utilities
         public string TenantName { get; set; }
         public string Currency { get; set; }
         public string TenantCulture { get; set; }
-        //public List<CountryModel> TenantCountries { get; set; }
         public string TenantIdInString { get; set; }
         public string User { get; set; }
         public string DatabaseName { get; set; }

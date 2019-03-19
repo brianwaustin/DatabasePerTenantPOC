@@ -54,6 +54,10 @@ namespace DatabasePerTenantPOC
                 services.AddDbContext<AppDbContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            ///* Temporary code to allow EF Core to apply code first changes */           
+            //services.AddDbContext<CustomerDbContext>(options =>
+            //    options.UseSqlServer(Configuration.GetConnectionString("TenantDbConnection2")));
+
             services.AddIdentity<AppUser, IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();

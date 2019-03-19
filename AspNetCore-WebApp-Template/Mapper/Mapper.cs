@@ -33,10 +33,7 @@ namespace DatabasePerTenantPOC.Mapping
         {
             return new CustomerModel
             {
-                Name = customer.Name,
-                //Email = customer.Email,
-                //PostalCode = customer.PostalCode,               
-                //CountryCode = customer.CountryCode,
+                Name = customer.Name,                
                 Id = customer.Id
             };
         }

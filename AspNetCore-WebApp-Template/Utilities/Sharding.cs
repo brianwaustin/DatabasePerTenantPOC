@@ -15,7 +15,6 @@ namespace DatabasePerTenantPOC.Utilities
         #region Private declarations
         private static IUtilities _utilities;
         private static ICatalogRepository _catalogRepository;
-        //private static ITenantRepository _tenantRepository;
         private static String _shardMapConnectionString;
         #endregion
 
@@ -44,13 +43,13 @@ namespace DatabasePerTenantPOC.Utilities
             try
             {
                 _catalogRepository = catalogRepository;
-                //_tenantRepository = tenantRepository;
                 _utilities = utilities;
                 _shardMapConnectionString = connectionString;
 
                 // Deploy shard map manager
                 // if shard map manager exists, refresh content, else create it, then add content
                 ShardMapManager smm;
+
                 ShardMapManager =
                     !ShardMapManagerFactory.TryGetSqlShardMapManager(connectionString,
                         ShardMapManagerLoadPolicy.Lazy, out smm)
@@ -106,10 +105,7 @@ namespace DatabasePerTenantPOC.Utilities
 
                     //convert from int to byte[] as tenantId has been set as byte[] in Tenants entity
                     var key = _utilities.ConvertIntKeyToBytesArray(pointMapping.Value);
-
-                    //get tenant's venue name
-                    //var venueDetails = await _tenantRepository.GetVenueDetails(tenantId);
-
+                    
                     //add tenant to Tenants table
                     var tenant = new Tenants
                     {
