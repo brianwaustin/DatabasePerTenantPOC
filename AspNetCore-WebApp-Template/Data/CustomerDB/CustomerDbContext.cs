@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.SqlDatabase.ElasticScale.ShardManagement;
+﻿using DatabasePerTenantPOC.Data.CustomerDB;
+using Microsoft.Azure.SqlDatabase.ElasticScale.ShardManagement;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,9 +9,10 @@ using System.Threading.Tasks;
 
 namespace DatabasePerTenantPOC.Data.TenantDB
 {
-    public class TenantDbContext : DbContext
+    public class CustomerDbContext : DbContext
     {
 
+        public virtual DbSet<Customer> Customers { get; set; }
         //public virtual DbSet<Countries> Countries { get; set; }
         //public virtual DbSet<Customers> Customers { get; set; }
         //public virtual DbSet<EventSections> EventSections { get; set; }
@@ -21,7 +23,7 @@ namespace DatabasePerTenantPOC.Data.TenantDB
         //public virtual DbSet<Venue> Venue { get; set; }
         //public virtual DbSet<VenueTypes> VenueTypes { get; set; }
 
-        public TenantDbContext(ShardMap shardMap, int shardingKey, string connectionStr) :
+        public CustomerDbContext(ShardMap shardMap, int shardingKey, string connectionStr) :
             base(CreateDdrConnection(shardMap, shardingKey, connectionStr))
         {
 
@@ -39,7 +41,7 @@ namespace DatabasePerTenantPOC.Data.TenantDB
             // Ask shard map to broker a validated connection for the given key
             SqlConnection sqlConn = shardMap.OpenConnectionForKey(shardingKey, connectionStr);
 
-            var optionsBuilder = new DbContextOptionsBuilder<TenantDbContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<CustomerDbContext>();
             var options = optionsBuilder.UseSqlServer(sqlConn).Options;
 
             return options;

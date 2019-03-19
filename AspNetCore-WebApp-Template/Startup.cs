@@ -17,6 +17,7 @@ using DatabasePerTenantPOC.Repositories;
 using System;
 using Microsoft.Azure.SqlDatabase.ElasticScale.ShardManagement;
 using System.Data.SqlClient;
+using DatabasePerTenantPOC.Data.TenantDB;
 
 namespace DatabasePerTenantPOC
 {
@@ -28,7 +29,7 @@ namespace DatabasePerTenantPOC
         static bool useInMemory = false;
         private IUtilities _utilities;
         private ICatalogRepository _catalogRepository;
-        private ITenantRepository _tenantRepository;
+        private ICustomerRepository _customerRepository;
         private ILookupClient _client;
 
         public static DatabaseConfig DatabaseConfig { get; set; }
@@ -75,12 +76,11 @@ namespace DatabasePerTenantPOC
 
             //register catalog DB
             services.AddDbContext<CatalogDbContext>(options => options.UseSqlServer(GetCatalogConnectionString(CatalogConfig, DatabaseConfig)));
-            //services.AddDbContext<CatalogDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
+            
             //Add Application services
             services.AddTransient<ICatalogRepository, CatalogRepository>();
-            services.AddTransient<ITenantRepository, TenantRepository>();
-            services.AddSingleton<ITenantRepository>(p => new TenantRepository(GetBasicSqlConnectionString()));
+            services.AddTransient<ICustomerRepository, CustomerRepository>();
+            services.AddSingleton<ICustomerRepository>(p => new CustomerRepository(GetBasicSqlConnectionString()));
             services.AddSingleton<IConfiguration>(Configuration);
             services.AddSingleton<ILookupClient>(p => new LookupClient());
 
@@ -89,7 +89,7 @@ namespace DatabasePerTenantPOC
             var provider = services.BuildServiceProvider();
             _utilities = provider.GetService<IUtilities>();
             _catalogRepository = provider.GetService<ICatalogRepository>();
-            _tenantRepository = provider.GetService<ITenantRepository>();
+            _customerRepository = provider.GetService<ICustomerRepository>();
             _client = provider.GetService<ILookupClient>();
 
             // Register no-op EmailSender used by account confirmation and password reset during development
@@ -142,9 +142,7 @@ namespace DatabasePerTenantPOC
         private string GetCatalogConnectionString(CatalogConfig catalogConfig, DatabaseConfig databaseConfig)
         {
             return
-                $"Server=tcp:{catalogConfig.CatalogServer},{databaseConfig.DatabaseServerPort};Database={catalogConfig.CatalogDatabase};User ID={databaseConfig.DatabaseUser};Password={databaseConfig.DatabasePassword};Trusted_Connection=True;Encrypt=False;";
-                //$"Server={catalogConfig.CatalogServer};Database={catalogConfig.CatalogDatabase};Trusted_Connection=True;Encrypt=False;";
-
+                $"Server=tcp:{catalogConfig.CatalogServer},{databaseConfig.DatabaseServerPort};Database={catalogConfig.CatalogDatabase};User ID={databaseConfig.DatabaseUser};Password={databaseConfig.DatabasePassword};Trusted_Connection=True;Encrypt=False;";                
         }
 
         /// <summary>
@@ -190,12 +188,11 @@ namespace DatabasePerTenantPOC
             var basicConnectionString = GetBasicSqlConnectionString();
             SqlConnectionStringBuilder connectionString = new SqlConnectionStringBuilder(basicConnectionString)
             {
-                DataSource = DatabaseConfig.SqlProtocol + ":" + CatalogConfig.CatalogServer + "," + DatabaseConfig.DatabaseServerPort,
-                //DataSource = CatalogConfig.CatalogServer,                
+                DataSource = DatabaseConfig.SqlProtocol + ":" + CatalogConfig.CatalogServer + "," + DatabaseConfig.DatabaseServerPort,                            
                 InitialCatalog = CatalogConfig.CatalogDatabase
             };
 
-            var sharding = new Sharding(CatalogConfig.CatalogDatabase, connectionString.ConnectionString, _catalogRepository, _tenantRepository, _utilities);
+            var sharding = new Sharding(CatalogConfig.CatalogDatabase, connectionString.ConnectionString, _catalogRepository, _customerRepository, _utilities);
         }
 
         /// <summary>
@@ -208,7 +205,7 @@ namespace DatabasePerTenantPOC
             {
                 UserID = DatabaseConfig.DatabaseUser,
                 Password = DatabaseConfig.DatabasePassword,
-                ApplicationName = "EntityFramework",
+                ApplicationName = Configuration["ApplicationName"],
                 ConnectTimeout = DatabaseConfig.ConnectionTimeOut,
                 LoadBalanceTimeout = 15
             };

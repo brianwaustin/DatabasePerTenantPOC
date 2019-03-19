@@ -50,11 +50,11 @@ namespace DatabasePerTenantPOC.Utilities
                         {
 
                             #region EF core
-                            //https://github.com/aspnet/EntityFramework/issues/7032
-                            using (var context = new TenantDbContext(Sharding.ShardMap, tenantId, connectionString.ConnectionString))
-                            {
-                                //context.Database.ExecuteSqlCommand("sp_ResetEventDates");
-                            }
+                            ////https://github.com/aspnet/EntityFramework/issues/7032
+                            //using (var context = new TenantDbContext(Sharding.ShardMap, tenantId, connectionString.ConnectionString))
+                            //{
+                            //    //context.Database.ExecuteSqlCommand("sp_ResetEventDates");
+                            //}
                             #endregion
                         }
                     }

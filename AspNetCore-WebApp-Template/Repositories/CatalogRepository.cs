@@ -1,6 +1,6 @@
 ﻿using DatabasePerTenantPOC.Data.CatalogDB;
 using DatabasePerTenantPOC.Interfaces;
-using DatabasePerTenantPOC.Mapper;
+using DatabasePerTenantPOC.Mapping;
 using DatabasePerTenantPOC.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

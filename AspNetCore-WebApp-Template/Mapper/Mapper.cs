@@ -1,4 +1,5 @@
 ﻿using DatabasePerTenantPOC.Data.CatalogDB;
+using DatabasePerTenantPOC.Data.CustomerDB;
 using DatabasePerTenantPOC.Models;
 using System;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace DatabasePerTenantPOC.Mapper
+namespace DatabasePerTenantPOC.Mapping
 {
     public static class Mapper
     {
@@ -28,130 +29,26 @@ namespace DatabasePerTenantPOC.Mapper
             };
         }
 
-        //public static CountryModel ToCountryModel(this Countries country)
-        //{
-        //    return new CountryModel
-        //    {
-        //        CountryCode = country.CountryCode.Trim(),
-        //        Language = country.Language.Trim(),
-        //        CountryName = country.CountryName.Trim()
-        //    };
-        //}
+        public static CustomerModel ToCustomerModel(this Customer customer)
+        {
+            return new CustomerModel
+            {
+                Name = customer.Name,
+                //Email = customer.Email,
+                //PostalCode = customer.PostalCode,               
+                //CountryCode = customer.CountryCode,
+                Id = customer.Id
+            };
+        }
 
-        //public static CustomerModel ToCustomerModel(this Customers customer)
-        //{
-        //    return new CustomerModel
-        //    {
-        //        FirstName = customer.FirstName,
-        //        Email = customer.Email,
-        //        PostalCode = customer.PostalCode,
-        //        LastName = customer.LastName,
-        //        CountryCode = customer.CountryCode,
-        //        CustomerId = customer.CustomerId
-        //    };
-        //}
-
-        //public static EventSectionModel ToEventSectionModel(this EventSections eventsection)
-        //{
-        //    return new EventSectionModel
-        //    {
-        //        EventId = eventsection.EventId,
-        //        Price = eventsection.Price,
-        //        SectionId = eventsection.SectionId
-        //    };
-        //}
-
-        //public static EventModel ToEventModel(this Events eventEntity)
-        //{
-        //    return new EventModel
-        //    {
-        //        Date = eventEntity.Date,
-        //        EventId = eventEntity.EventId,
-        //        EventName = eventEntity.EventName.Trim(),
-        //        SubTitle = eventEntity.Subtitle.Trim()
-        //    };
-        //}
-
-        //public static SectionModel ToSectionModel(this Sections section)
-        //{
-        //    return new SectionModel
-        //    {
-        //        SectionId = section.SectionId,
-        //        SeatsPerRow = section.SeatsPerRow,
-        //        SectionName = section.SectionName,
-        //        SeatRows = section.SeatRows,
-        //        StandardPrice = section.StandardPrice
-        //    };
-        //}
-
-        //public static VenueModel ToVenueModel(this Venue venueModel)
-        //{
-        //    return new VenueModel
-        //    {
-        //        VenueName = venueModel.VenueName.Trim(),
-        //        AdminEmail = venueModel.AdminEmail.Trim(),
-        //        AdminPassword = venueModel.AdminPassword,
-        //        CountryCode = venueModel.CountryCode.Trim(),
-        //        PostalCode = venueModel.PostalCode,
-        //        VenueType = venueModel.VenueType.Trim()
-        //    };
-        //}
-
-        //public static VenueTypeModel ToVenueTypeModel(this VenueTypes venueType)
-        //{
-        //    return new VenueTypeModel
-        //    {
-        //        VenueType = venueType.VenueType.Trim(),
-        //        EventTypeName = venueType.EventTypeName.Trim(),
-        //        EventTypeShortName = venueType.EventTypeShortName.Trim(),
-        //        EventTypeShortNamePlural = venueType.EventTypeShortNamePlural.Trim(),
-        //        Language = venueType.Language.Trim(),
-        //        VenueTypeName = venueType.VenueTypeName.Trim()
-        //    };
-        //}
-
-        #endregion
-
-        #region Model to Entity Mapping
-
-        //public static Customers ToCustomersEntity(this CustomerModel customeModel)
-        //{
-        //    return new Customers
-        //    {
-        //        CountryCode = customeModel.CountryCode,
-        //        Email = customeModel.Email,
-        //        FirstName = customeModel.FirstName,
-        //        LastName = customeModel.LastName,
-        //        PostalCode = customeModel.PostalCode
-        //    };
-        //}
-
-        //public static TicketPurchases ToTicketPurchasesEntity(this TicketPurchaseModel ticketPurchaseModel)
-        //{
-        //    //password not required to save demo friction
-        //    return new TicketPurchases
-        //    {
-        //        CustomerId = ticketPurchaseModel.CustomerId,
-        //        PurchaseDate = DateTime.Now,
-        //        PurchaseTotal = ticketPurchaseModel.PurchaseTotal
-        //    };
-        //}
-
-        //public static Tickets ToTicketsEntity(this TicketModel ticketModel)
-        //{
-        //    return new Tickets
-        //    {
-        //        TicketPurchaseId = ticketModel.TicketPurchaseId,
-        //        SectionId = ticketModel.SectionId,
-        //        EventId = ticketModel.EventId,
-        //        RowNumber = ticketModel.RowNumber,
-        //        SeatNumber = ticketModel.SeatNumber
-        //    };
-        //}
-
-        #endregion
-
-        #region Private methods
+        public static Customer ToCustomersEntity(this CustomerModel customeModel)
+        {
+            return new Customer
+            {
+                Id = customeModel.Id,
+                Name = customeModel.Name 
+            };
+        }        
 
         /// <summary>
         /// Converts the byte key into int.

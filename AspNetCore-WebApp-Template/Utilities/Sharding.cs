@@ -39,7 +39,7 @@ namespace DatabasePerTenantPOC.Utilities
         /// <param name="tenantRepository">The tenant repository.</param>
         /// <param name="utilities">The utilities class.</param>
         /// <exception cref="System.ApplicationException">Error in sharding initialisation.</exception>
-        public Sharding(string catalogDatabase, string connectionString, ICatalogRepository catalogRepository, ITenantRepository tenantRepository, IUtilities utilities)
+        public Sharding(string catalogDatabase, string connectionString, ICatalogRepository catalogRepository, ICustomerRepository tenantRepository, IUtilities utilities)
         {
             try
             {
